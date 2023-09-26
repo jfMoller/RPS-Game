@@ -2,14 +2,15 @@ package entity;
 
 public class ComputerCharacter extends GameCharacter {
 
-private final ChoiceGenerator choiceGenerator;
+    protected final ChoiceGenerator choiceGenerator;
+
     public ComputerCharacter(String name) {
         super(name);
-        this.choiceGenerator = new RandomChoiceGenerator(Rules.getInstance().getChoices());
+        this.choiceGenerator = new ChoiceGeneratorImpl(Rules.getInstance().getChoices());
     }
 
     public Choice generateComputerChoice() {
-       return choiceGenerator.generateChoice();
+        return choiceGenerator.generateRandomChoice();
     }
 
     @Override
@@ -18,4 +19,5 @@ private final ChoiceGenerator choiceGenerator;
                 "name='" + name + '\'' +
                 '}';
     }
+
 }

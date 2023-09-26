@@ -23,19 +23,25 @@ public class Game {
         observers.add(observer);
     }
 
-    public void removeObserver(MatchObserver observer) {
-        observers.remove(observer);
-    }
-
     public void notifyObservers(PlayerCharacter player, ComputerCharacter opponent, List<Result> roundResults, Result matchResult) {
         for (MatchObserver observer : observers) {
             observer.update(player, opponent, roundResults, matchResult);
         }
     }
 
-    public Game(PlayerCharacter player, ComputerCharacter computer, double amountOfRounds) {
+    public Game() {
+    }
+
+
+    public void setPlayer(PlayerCharacter player) {
         this.player = player;
+    }
+
+    public void setComputer(ComputerCharacter computer) {
         this.computer = computer;
+    }
+
+    public void setAmountOfRounds(double amountOfRounds) {
         this.amountOfRounds = amountOfRounds;
     }
 
