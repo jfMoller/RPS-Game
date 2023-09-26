@@ -1,4 +1,9 @@
 import entity.*;
+import entity.characters.ComputerCharacter;
+import entity.characters.GameCharacterFactory;
+import entity.characters.PlayerCharacter;
+import entity.stats.MatchRecorder;
+import entity.stats.RecordedMatch;
 
 import java.util.List;
 import java.util.Scanner;
@@ -23,9 +28,10 @@ public class Main {
             System.out.println("""
                     Game Menu
                     - (P)lay
+                    - (S)how statistics
                     - (Q)uit
                     """);
-            System.out.println("Enter your choice (P, OR Q)");
+            System.out.println("Enter your choice (P, S or Q)");
 
             String choice = scanner.nextLine().toUpperCase();
 
@@ -37,8 +43,10 @@ public class Main {
 
                 game.playMatch();
 
-                List<RecordedMatch> recordedMatches = matchRecorder.getRecordedMatches();
-                System.out.println(recordedMatches);
+            }
+
+            if (choice.equals("S")) {
+                showPlayerStatistics(matchRecorder);
             } else if (choice.equals("Q")) {
                 break;
             }
@@ -78,5 +86,10 @@ public class Main {
         System.out.println("Enter the amount of rounds:");
         int amountOfRounds = scanner.nextInt();
         game.setAmountOfRounds(amountOfRounds);
+    }
+
+    public static void showPlayerStatistics(MatchRecorder matchRecorder) {
+        List<RecordedMatch> recordedMatches = matchRecorder.getRecordedMatches();
+        System.out.println(recordedMatches);
     }
 }

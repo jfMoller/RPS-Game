@@ -1,10 +1,17 @@
 package entity;
 
+import entity.characters.ComputerCharacter;
+import entity.characters.PlayerCharacter;
+import entity.choices.Choice;
+import entity.rules.Result;
+import entity.rules.Rules;
+import entity.stats.MatchObserver;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-import static entity.Result.*;
+import static entity.rules.Result.*;
 
 public class Game {
 
