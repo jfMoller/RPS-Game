@@ -11,4 +11,11 @@ private final ChoiceGenerator choiceGenerator;
     public Choice generateComputerChoice() {
        return choiceGenerator.generateChoice();
     }
+
+    @Override
+    public String toString() {
+        return "ComputerCharacter{" +
+                "name='" + name + '\'' +
+                '}';
+    }
 }

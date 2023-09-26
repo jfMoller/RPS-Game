@@ -1,7 +1,7 @@
 package entity;
 
-public class GameCharacter {
-    private final String name;
+public abstract class GameCharacter {
+    String name;
 
     public GameCharacter(String name) {
         this.name = name;
@@ -9,5 +9,12 @@ public class GameCharacter {
 
     public String getName() {
         return name;
+    }
+
+    @Override
+    public String toString() {
+        return "GameCharacter{" +
+                "name='" + name + '\'' +
+                '}';
     }
 }

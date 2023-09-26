@@ -8,20 +8,35 @@ import static entity.Result.*;
 
 public class Game {
 
-    private final Rules rules;
+    private final Rules rules = Rules.getInstance();
+    ;
     private PlayerCharacter player;
 
     private ComputerCharacter computer;
     private double amountOfRounds;
 
-    private List<Result> results;
+    private List<Result> results = new ArrayList<>();
+
+    private List<MatchObserver> observers = new ArrayList<>();
+
+    public void addObserver(MatchObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(MatchObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void notifyObservers(PlayerCharacter player, ComputerCharacter opponent, List<Result> roundResults, Result matchResult) {
+        for (MatchObserver observer : observers) {
+            observer.update(player, opponent, roundResults, matchResult);
+        }
+    }
 
     public Game(PlayerCharacter player, ComputerCharacter computer, double amountOfRounds) {
-        this.rules = Rules.getInstance();
         this.player = player;
         this.computer = computer;
         this.amountOfRounds = amountOfRounds;
-        this.results = new ArrayList<>();
     }
 
     public void playMatch() {
@@ -40,6 +55,8 @@ public class Game {
         } while (rounds <= amountOfRounds);
 
         Result matchResult = getMatchResult();
+
+        notifyObservers(player, computer, results, matchResult);
 
         System.out.println("_".repeat(30));
         System.out.println("Match result: " + matchResult);

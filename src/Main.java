@@ -1,39 +1,44 @@
 import entity.*;
 
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Welcome to RPS");
 
-        System.out.println("""
-                RPS Game
-                - (S)tart game
-                - (Q)uit
-                """);
-        System.out.println("Enter your choice (S, OR Q)");
+        System.out.println("Enter your name:");
+        String playerName = scanner.nextLine();
 
-        String choice = scanner.nextLine().toUpperCase();
+        System.out.println("Enter the amount of rounds:");
+        int amountOfRounds = scanner.nextInt();
 
+        PlayerCharacter player = GameCharacterFactory.createCharacter(playerName, true);
+        ComputerCharacter computer = GameCharacterFactory.createCharacter("Computer", false);
 
-        if (choice.equals("S")) {
-            System.out.println("Enter your name:");
-            String playerName = scanner.nextLine();
+        Game game = new Game(player, computer, amountOfRounds);
 
-            System.out.println("Enter the amount of rounds:");
-            int amountOfRounds = scanner.nextInt();
+        MatchRecorder matchRecorder = new MatchRecorder();
+        game.addObserver(matchRecorder);
 
-            PlayerCharacter player = GameCharacterFactory.createCharacter(playerName, true);
-            ComputerCharacter computer = GameCharacterFactory.createCharacter("Computer", false);
+        while (true) {
+            System.out.println("""
+                    Game Menu
+                    - (P)lay
+                    - (Q)uit
+                    """);
+            System.out.println("Enter your choice (P, OR Q)");
 
-            Game game = new Game(player, computer, amountOfRounds);
+            String choice = scanner.nextLine().toUpperCase();
 
-            game.playMatch();
+            if (choice.equals("P")) {
+                game.playMatch();
+                List<RecordedMatch> recordedMatches = matchRecorder.getRecordedMatches();
+                System.out.println(recordedMatches);
+            } else if (choice.equals("Q")) {
+                break;
+            }
         }
-
-        else if (choice.equals("Q")) {
-            return;
-        }
-
     }
 }
