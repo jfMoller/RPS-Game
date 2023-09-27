@@ -1,15 +1,17 @@
 package entity;
 
 import entity.characters.ComputerCharacter;
+import entity.characters.GameCharacterFactory;
 import entity.characters.PlayerCharacter;
 import entity.choices.Choice;
 import entity.rules.Result;
 import entity.rules.Rules;
+import entity.stats.ChoiceRecorder;
 import entity.stats.MatchObserver;
+import entity.stats.MatchRecorder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import static entity.rules.Result.*;
 
@@ -19,74 +21,112 @@ public class Game {
     ;
     private PlayerCharacter player;
 
-    private ComputerCharacter computer;
-    private double amountOfRounds;
+    private ComputerCharacter computerOpponent;
+    private List<ComputerCharacter> computerOpponents = new ArrayList<>();
 
-    private List<Result> results = new ArrayList<>();
+    private int amountOfRounds;
 
-    private List<MatchObserver> observers = new ArrayList<>();
+    private List<Result> roundResults = new ArrayList<>();
 
-    public void addObserver(MatchObserver observer) {
-        observers.add(observer);
-    }
+    private MatchObserver matchObserver;
 
-    public void notifyObservers(PlayerCharacter player, ComputerCharacter opponent, List<Result> roundResults, Result matchResult) {
-        for (MatchObserver observer : observers) {
-            observer.update(player, opponent, roundResults, matchResult);
-        }
-    }
+    private final MatchRecorder matchRecorder;
+
 
     public Game() {
+        this.matchRecorder = new MatchRecorder();
+        this.addObserver(matchRecorder);
     }
 
+    public void addObserver(MatchObserver observer) {
+        matchObserver = observer;
+    }
+
+    public void notifyObserver(Result matchResult) {
+        matchRecorder.recordMatch(player, computerOpponent, roundResults, matchResult);
+    }
+
+    public PlayerCharacter getPlayer() {
+        return player;
+    }
+
+    public ComputerCharacter getComputerOpponent() {
+        return computerOpponent;
+    }
+
+    public int getAmountOfRounds() {
+        return amountOfRounds;
+    }
+
+    public List<Result> getRoundResults() {
+        return roundResults;
+    }
+
+    public MatchRecorder getMatchRecorder() {
+        return matchRecorder;
+    }
+
+    public List<ChoiceRecorder> getCharacterChoiceRecorders() {
+        return List.of(
+                player.getChoiceRecorder(),
+                findComputerOpponentByName("Passim").getChoiceRecorder(),
+                findComputerOpponentByName("Nomen").getChoiceRecorder(),
+                findComputerOpponentByName("Tempus").getChoiceRecorder());
+    }
 
     public void setPlayer(PlayerCharacter player) {
         this.player = player;
     }
 
-    public void setComputer(ComputerCharacter computer) {
-        this.computer = computer;
+    public void setComputerOpponent(ComputerCharacter computerOpponent) {
+        this.computerOpponent = computerOpponent;
     }
 
-    public void setAmountOfRounds(double amountOfRounds) {
+    public void setAmountOfRounds(int amountOfRounds) {
         this.amountOfRounds = amountOfRounds;
     }
 
-    public void playMatch() {
-        Scanner scanner = new Scanner(System.in);
+    public void setUpGameCharacters(String playerName) {
+        setupPlayer(playerName);
+        generateComputerOpponents();
+    }
 
-        int rounds = 1;
-        do {
-            System.out.println("Select (R)OCK, (P)APER or (S)cissors");
+    public void setupPlayer(String playerName) {
+        this.setPlayer(GameCharacterFactory.createPlayerCharacter(playerName));
+    }
 
-            Choice playerChoice = parseChoice(scanner.nextLine());
-            player.notifyObserver(playerChoice);
+    public void generateComputerOpponents() {
+        ComputerCharacter passim = GameCharacterFactory.createDefaultComputerCharacter();
+        computerOpponents.add(passim);
 
-            Choice computerChoice = computer.generateComputerChoice();
-            computer.notifyObserver(computerChoice);
+        ComputerCharacter nomen = GameCharacterFactory.createNameBasedComputerCharacter(player.getName());
+        computerOpponents.add(nomen);
 
-            Result roundResult = getRoundResult(playerChoice, computerChoice);
-            results.add(roundResult);
-            rounds++;
-        } while (rounds <= amountOfRounds);
-
-        Result matchResult = getMatchResult();
-
-        notifyObservers(player, computer, results, matchResult);
-
-        System.out.println("_".repeat(30));
-        System.out.println("Match result: " + matchResult);
-        System.out.println("Round results: " + results);
+        ComputerCharacter tempus = GameCharacterFactory.createTimeBasedComputerCharacter();
+        computerOpponents.add(tempus);
 
     }
 
-    private Choice parseChoice(String input) {
-        return switch (input.toUpperCase()) {
-            case "R" -> Choice.ROCK;
-            case "P" -> Choice.PAPER;
-            case "S" -> Choice.SCISSORS;
-            default -> null;
-        };
+    public void chooseComputerOpponent(String opponentChoice) {
+        ComputerCharacter computerOpponent = null;
+
+        switch (opponentChoice.toUpperCase()) {
+            case "P" -> computerOpponent = findComputerOpponentByName("Passim");
+            case "N" -> computerOpponent = findComputerOpponentByName("Nomen");
+            case "T" -> computerOpponent = findComputerOpponentByName("Tempus");
+        }
+        this.setComputerOpponent(computerOpponent);
+    }
+
+    public ComputerCharacter findComputerOpponentByName(String name) {
+        return computerOpponent = computerOpponents.stream()
+                .filter(opponent -> opponent.getName().equals(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public void chooseAmountOfRounds(int chosenAmount) {
+        setAmountOfRounds(chosenAmount);
     }
 
     public Result getRoundResult(Choice playerChoice, Choice computerChoice) {
@@ -96,23 +136,26 @@ public class Game {
         return result;
     }
 
+    public void addRoundResult(Result roundResult) {
+        roundResults.add(roundResult);
+    }
+
     public void showRoundResult(Choice playerChoice, Choice computerChoice, Result result) {
         System.out.println(player.getName() + "'s choice: " + playerChoice + "\n"
-                + computer.getName() + "'s choice: " + computerChoice + "\n"
+                + computerOpponent.getName() + "'s choice: " + computerChoice + "\n"
                 + "Result: " + result);
     }
 
-    private Result getMatchResult() {
+    public Result getMatchResult() {
         int playerWinsAmount = 0;
         int computerWinsAmount = 0;
-        for (Result result : results) {
-            if (result.equals(PLAYER_WIN)) {
+        for (Result roundResult : roundResults) {
+            if (roundResult.equals(PLAYER_WIN)) {
                 playerWinsAmount++;
-            } else if (result.equals(COMPUTER_WIN)) {
+            } else if (roundResult.equals(COMPUTER_WIN)) {
                 computerWinsAmount++;
             }
         }
-
 
         if (playerWinsAmount == computerWinsAmount) {
             return TIE;

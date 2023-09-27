@@ -21,11 +21,16 @@ public class RecordedGameCharacter {
         choices.add(newChoice);
     }
 
+    public GameCharacter getGameCharacter() {
+        return gameCharacter;
+    }
+
+    public List<Choice> getChoices() {
+        return choices;
+    }
+
     @Override
     public String toString() {
-        return "RecordedChoices{" +
-                "gameCharacter=" + gameCharacter +
-                ", choices=" + choices +
-                '}';
+        return "%-15s %-15s".formatted(gameCharacter, choices);
     }
 }

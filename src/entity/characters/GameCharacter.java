@@ -16,7 +16,7 @@ public abstract class GameCharacter {
         this.name = name;
         this.choiceRecorder = choiceRecorder;
         this.addObserver(choiceRecorder);
-        choiceObserver.observeCharacter(this);
+        choiceObserver.recordCharacter(this);
     }
 
     public void addObserver(ChoiceObserver observer) {
@@ -24,7 +24,7 @@ public abstract class GameCharacter {
     }
 
     public void notifyObserver(Choice newChoice) {
-        choiceRecorder.updateChoices(newChoice);
+        choiceRecorder.recordChoice(newChoice);
     }
 
     public String getName() {
@@ -37,8 +37,6 @@ public abstract class GameCharacter {
 
     @Override
     public String toString() {
-        return "GameCharacter{" +
-                "name='" + name + '\'' +
-                '}';
+        return name;
     }
 }

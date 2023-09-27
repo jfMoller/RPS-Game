@@ -5,6 +5,6 @@ import entity.choices.Choice;
 
 public interface ChoiceObserver {
 
-    void observeCharacter(GameCharacter gameCharacter);
-    void updateChoices(Choice newChoice);
+    void recordCharacter(GameCharacter newGameCharacter);
+    void recordChoice(Choice newChoice);
 }

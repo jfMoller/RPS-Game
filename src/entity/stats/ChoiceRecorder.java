@@ -7,12 +7,12 @@ public class ChoiceRecorder implements ChoiceObserver {
 
     private RecordedGameCharacter recordedGameCharacter;
     @Override
-    public void observeCharacter(GameCharacter gameCharacter) {
+    public void recordCharacter(GameCharacter gameCharacter) {
         this.recordedGameCharacter = new RecordedGameCharacter(gameCharacter);
     }
 
     @Override
-    public void updateChoices(Choice newChoice) {
+    public void recordChoice(Choice newChoice) {
         recordedGameCharacter.updateChoices(newChoice);
     }
 

@@ -19,11 +19,4 @@ public class ComputerCharacter extends GameCharacter {
         return choiceGenerator.generateRandomChoice();
     }
 
-    @Override
-    public String toString() {
-        return "ComputerCharacter{" +
-                "name='" + name + '\'' +
-                '}';
-    }
-
 }
