@@ -60,7 +60,10 @@ public class Game {
             System.out.println("Select (R)OCK, (P)APER or (S)cissors");
 
             Choice playerChoice = parseChoice(scanner.nextLine());
+            player.notifyObserver(playerChoice);
+
             Choice computerChoice = computer.generateComputerChoice();
+            computer.notifyObserver(computerChoice);
 
             Result roundResult = getRoundResult(playerChoice, computerChoice);
             results.add(roundResult);

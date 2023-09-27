@@ -1,8 +1,10 @@
-import entity.*;
+import entity.Game;
 import entity.characters.ComputerCharacter;
 import entity.characters.GameCharacterFactory;
 import entity.characters.PlayerCharacter;
+import entity.stats.ChoiceRecorder;
 import entity.stats.MatchRecorder;
+import entity.stats.RecordedGameCharacter;
 import entity.stats.RecordedMatch;
 
 import java.util.List;
@@ -22,7 +24,15 @@ public class Main {
         String playerName = scanner.nextLine();
 
         PlayerCharacter player = GameCharacterFactory.createPlayerCharacter(playerName);
+
         game.setPlayer(player);
+
+        // Instanced opponents (to set up observers from the jump)
+        ComputerCharacter passim = GameCharacterFactory.createDefaultComputerCharacter();
+
+        ComputerCharacter nomen = GameCharacterFactory.createNameBasedComputerCharacter(playerName);
+
+        ComputerCharacter tempus = GameCharacterFactory.createTimeBasedComputerCharacter();
 
         while (true) {
             System.out.println("""
@@ -37,7 +47,7 @@ public class Main {
 
             if (choice.equals("P")) {
 
-                chooseOpponent(game, playerName);
+                chooseOpponent(game, passim, nomen, tempus);
 
                 chooseAmountOfRounds(game);
 
@@ -46,7 +56,12 @@ public class Main {
             }
 
             if (choice.equals("S")) {
-                showPlayerStatistics(matchRecorder);
+                showStatistics(
+                        player.getChoiceRecorder(),
+                        passim.getChoiceRecorder(),
+                        nomen.getChoiceRecorder(),
+                        tempus.getChoiceRecorder(),
+                        matchRecorder);
             } else if (choice.equals("Q")) {
                 break;
             }
@@ -54,7 +69,10 @@ public class Main {
         scanner.close();
     }
 
-    public static void chooseOpponent(Game game, String playerName) {
+    public static void chooseOpponent(Game game,
+                                      ComputerCharacter passim,
+                                      ComputerCharacter nomen,
+                                      ComputerCharacter tempus) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Choose your opponent:");
@@ -65,19 +83,19 @@ public class Main {
 
         String opponentChoice = scanner.nextLine();
 
-        ComputerCharacter computer = null;
+        ComputerCharacter computerOpponent = null;
         if (opponentChoice.equalsIgnoreCase("P")) {
-            computer = GameCharacterFactory.createDefaultComputerCharacter();
+            computerOpponent = passim;
         }
 
         if (opponentChoice.equalsIgnoreCase("N")) {
-            computer = GameCharacterFactory.createNameBasedComputerCharacter(playerName);
+            computerOpponent = nomen;
         }
 
         if (opponentChoice.equalsIgnoreCase("T")) {
-            computer = GameCharacterFactory.createTimeBasedComputerCharacter();
+            computerOpponent = tempus;
         }
-        game.setComputer(computer);
+        game.setComputer(computerOpponent);
     }
 
     public static void chooseAmountOfRounds(Game game) {
@@ -88,8 +106,26 @@ public class Main {
         game.setAmountOfRounds(amountOfRounds);
     }
 
-    public static void showPlayerStatistics(MatchRecorder matchRecorder) {
+    public static void showStatistics(ChoiceRecorder playerChoiceRecorder,
+                                      ChoiceRecorder passimChoiceRecorder,
+                                      ChoiceRecorder nomenChoiceRecorder,
+                                      ChoiceRecorder tempusChoiceRecorder,
+                                      MatchRecorder matchRecorder) {
+
+        showCharacterChoiceStatistics(playerChoiceRecorder);
+        showCharacterChoiceStatistics(passimChoiceRecorder);
+        showCharacterChoiceStatistics(nomenChoiceRecorder);
+        showCharacterChoiceStatistics(tempusChoiceRecorder);
+        showPlayerMatchStatistics(matchRecorder);
+    }
+
+    public static void showPlayerMatchStatistics(MatchRecorder matchRecorder) {
         List<RecordedMatch> recordedMatches = matchRecorder.getRecordedMatches();
         System.out.println(recordedMatches);
+    }
+
+    public static void showCharacterChoiceStatistics(ChoiceRecorder characterChoiceRecorder) {
+        RecordedGameCharacter recordedCharacter = characterChoiceRecorder.getRecordedGameCharacter();
+        System.out.println(recordedCharacter);
     }
 }

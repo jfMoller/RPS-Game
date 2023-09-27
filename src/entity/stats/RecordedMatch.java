@@ -28,22 +28,6 @@ public class RecordedMatch {
         this.matchResult = matchResult;
     }
 
-    public PlayerCharacter getPlayer() {
-        return player;
-    }
-
-    public ComputerCharacter getComputer() {
-        return computer;
-    }
-
-    public List<Result> getRoundResults() {
-        return roundResults;
-    }
-
-    public Result getMatchResult() {
-        return matchResult;
-    }
-
     @Override
     public String toString() {
         return "Match " + matchNumber + ": " +
