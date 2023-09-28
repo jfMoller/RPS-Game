@@ -130,20 +130,11 @@ public class Game {
     }
 
     public Result getRoundResult(Choice playerChoice, Choice computerChoice) {
-        Result result = rules.determineResult(playerChoice, computerChoice);
-        showRoundResult(playerChoice, computerChoice, result);
-
-        return result;
+        return rules.determineResult(playerChoice, computerChoice);
     }
 
     public void addRoundResult(Result roundResult) {
         roundResults.add(roundResult);
-    }
-
-    public void showRoundResult(Choice playerChoice, Choice computerChoice, Result result) {
-        System.out.println(player.getName() + "'s choice: " + playerChoice + "\n"
-                + computerOpponent.getName() + "'s choice: " + computerChoice + "\n"
-                + "Result: " + result);
     }
 
     public Result getMatchResult() {

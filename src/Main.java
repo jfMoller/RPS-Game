@@ -6,6 +6,6 @@ public class Main {
         Game game = new Game();
         Menu menu = new Menu(game);
 
-        menu.launch();
+        menu.render();
     }
 }

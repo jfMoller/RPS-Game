@@ -1,61 +1,83 @@
 package entity.stats;
 
+import dto.JsonFormatProvider;
 import entity.choices.Choice;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static entity.choices.Choice.*;
 
-public class StatisticsProvider {
+public interface StatisticsProvider {
 
-    public static void showStatistics(List<ChoiceRecorder> characterChoiceRecorders, MatchRecorder matchRecorder) {
+    List<String> getPlayerMatchStats(MatchRecorder matchRecorder);
 
-        System.out.println("Choice statistics:");
-        for (ChoiceRecorder characterChoices : characterChoiceRecorders) {
-            showCharacterChoiceStatistics(characterChoices);
+    default List<String> formatPlayerMatchStats(MatchRecorder matchRecorder) {
+        List<String> matches = new ArrayList<>();
+        for (RecordedMatch match : matchRecorder.getRecordedMatches()) {
+            matches.add(getJsonFormatForPlayerMatch(match));
         }
-        System.out.println();
-        System.out.println("Match statistics:");
-        showPlayerMatchStatistics(matchRecorder);
+        return matches;
     }
 
-    public static void showPlayerMatchStatistics(MatchRecorder matchRecorder) {
-        List<RecordedMatch> recordedMatches = matchRecorder.getRecordedMatches();
-        System.out.println(recordedMatches);
+    private String getJsonFormatForPlayerMatch(RecordedMatch match) {
+
+        Map<String, Object> items = new LinkedHashMap<>();
+        items.put("matchNumber", match.getMatchNumber());
+        items.put("player", match.getPlayer().getName());
+        items.put("computerOpponent", match.getComputerOpponent().getName());
+        items.put("roundResults", match.getRoundResults().stream().map(result -> "\"" + result.toString() + "\"").toList());
+        items.put("matchResult", match.getMatchResult().toString());
+
+        return JsonFormatProvider.getJsonFormat(items);
     }
 
-    public static void showCharacterChoiceStatistics(ChoiceRecorder characterChoiceRecorder) {
-        RecordedGameCharacter recordedCharacter = characterChoiceRecorder.getRecordedGameCharacter();
-        System.out.println(getChoicePercentages(recordedCharacter));
-    }
+    String getCharacterChoiceStats(ChoiceRecorder characterChoiceRecorder);
 
-    private static String getChoicePercentages(RecordedGameCharacter recordedGameCharacter) {
+    default String calculateChoicePercentages(RecordedGameCharacter recordedGameCharacter) {
         double rockSum = 0;
         double paperSum = 0;
         double scissorsSum = 0;
 
         for (Choice choice : recordedGameCharacter.getChoices()) {
             if (choice.equals(ROCK)) rockSum++;
-
             if (choice.equals(PAPER)) paperSum++;
-
             if (choice.equals(SCISSORS)) scissorsSum++;
         }
+
         double totalSum = rockSum + paperSum + scissorsSum;
 
-        double rockPercentage = 0;
-        double paperPercentage = 0;
-        double scissorsPercentage = 0;
+        // Used to maintain decimals (.2) in JSON format
+        BigDecimal rockPercentage = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal paperPercentage = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal scissorsPercentage = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
         if (totalSum > 0) {
-            rockPercentage = rockSum / totalSum * 100;
-            paperPercentage = paperSum / totalSum * 100;
-            scissorsPercentage = scissorsSum / totalSum * 100;
+            rockPercentage = BigDecimal.valueOf(rockSum / totalSum * 100).setScale(2, RoundingMode.HALF_UP);
+            paperPercentage = BigDecimal.valueOf(paperSum / totalSum * 100).setScale(2, RoundingMode.HALF_UP);
+            scissorsPercentage = BigDecimal.valueOf(scissorsSum / totalSum * 100).setScale(2, RoundingMode.HALF_UP);
         }
 
-        String characterName = recordedGameCharacter.getGameCharacter().getName();
+        return getJsonFormatForChoicePercentages(recordedGameCharacter, rockPercentage, paperPercentage, scissorsPercentage);
 
-        return "%-15s - ROCK: %-10.2f - PAPER: %-10.2f - SCISSORS: %-10.2f".formatted(characterName, rockPercentage, paperPercentage, scissorsPercentage);
     }
 
+    private String getJsonFormatForChoicePercentages(
+            RecordedGameCharacter recordedGameCharacter,
+            BigDecimal rockPercentage,
+            BigDecimal paperPercentage, BigDecimal scissorsPercentage) {
+        String characterName = recordedGameCharacter.getGameCharacter().getName();
+
+        Map<String, Object> items = new LinkedHashMap<>();
+        items.put("name", characterName);
+        items.put("rockPercentage", rockPercentage);
+        items.put("paperPercentage", paperPercentage);
+        items.put("scissorsPercentage", scissorsPercentage);
+
+        return JsonFormatProvider.getJsonFormat(items);
+    }
 }
