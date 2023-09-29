@@ -1,6 +1,6 @@
 package entity.choices;
 
-public interface ChoiceGenerator { // For strategy pattern
+public interface ChoiceGenerator {
     Choice generateRandomChoice();
 
     Choice generateNameBasedChoice(String playerName);

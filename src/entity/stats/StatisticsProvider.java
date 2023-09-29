@@ -1,6 +1,7 @@
 package entity.stats;
 
 import dto.JsonFormatProvider;
+import dto.JsonFormatProviderImpl;
 import entity.choices.Choice;
 
 import java.math.BigDecimal;
@@ -13,6 +14,8 @@ import java.util.Map;
 import static entity.choices.Choice.*;
 
 public interface StatisticsProvider {
+
+    final JsonFormatProvider jsonFormatProvider = new JsonFormatProviderImpl();
 
     List<String> getPlayerMatchStats(MatchRecorder matchRecorder);
 
@@ -33,7 +36,7 @@ public interface StatisticsProvider {
         items.put("roundResults", match.getRoundResults().stream().map(result -> "\"" + result.toString() + "\"").toList());
         items.put("matchResult", match.getMatchResult().toString());
 
-        return JsonFormatProvider.getJsonFormat(items);
+        return jsonFormatProvider.getJsonFormat(items);
     }
 
     String getCharacterChoiceStats(ChoiceRecorder characterChoiceRecorder);
@@ -78,6 +81,6 @@ public interface StatisticsProvider {
         items.put("paperPercentage", paperPercentage);
         items.put("scissorsPercentage", scissorsPercentage);
 
-        return JsonFormatProvider.getJsonFormat(items);
+        return jsonFormatProvider.getJsonFormat(items);
     }
 }

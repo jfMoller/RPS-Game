@@ -13,6 +13,7 @@ public class MatchRecorder implements MatchObserver {
 
     @Override
     public void recordMatch(PlayerCharacter player, ComputerCharacter opponent, List<Result> roundResults, Result matchResult) {
+
         recordedMatches.add(new RecordedMatch(player, opponent, roundResults, matchResult));
     }
 

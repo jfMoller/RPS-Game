@@ -4,7 +4,7 @@ import entity.choices.Choice;
 
 public class NameBasedComputerCharacter extends ComputerCharacter {
 
-    private String playerName;
+    private final String playerName;
 
     public NameBasedComputerCharacter(String name, String playerName) {
         super(name);

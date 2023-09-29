@@ -7,39 +7,33 @@ import entity.choices.Choice;
 import entity.rules.Result;
 import entity.rules.Rules;
 import entity.stats.ChoiceRecorder;
-import entity.stats.MatchObserver;
 import entity.stats.MatchRecorder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static entity.rules.Result.*;
 
 public class Game {
 
-    private final Rules rules = Rules.getInstance();
-    ;
+    private final Rules rules;
+
     private PlayerCharacter player;
 
     private ComputerCharacter computerOpponent;
-    private List<ComputerCharacter> computerOpponents = new ArrayList<>();
+    private final List<ComputerCharacter> computerOpponents = new ArrayList<>();
 
     private int amountOfRounds;
 
     private List<Result> roundResults = new ArrayList<>();
 
-    private MatchObserver matchObserver;
-
     private final MatchRecorder matchRecorder;
 
 
     public Game() {
+        this.rules = Rules.getInstance();
         this.matchRecorder = new MatchRecorder();
-        this.addObserver(matchRecorder);
-    }
-
-    public void addObserver(MatchObserver observer) {
-        matchObserver = observer;
     }
 
     public void notifyObserver(Result matchResult) {
@@ -67,11 +61,13 @@ public class Game {
     }
 
     public List<ChoiceRecorder> getCharacterChoiceRecorders() {
-        return List.of(
-                player.getChoiceRecorder(),
-                findComputerOpponentByName("Passim").getChoiceRecorder(),
-                findComputerOpponentByName("Nomen").getChoiceRecorder(),
-                findComputerOpponentByName("Tempus").getChoiceRecorder());
+        List<ChoiceRecorder> choiceRecorders = new ArrayList<>();
+
+        choiceRecorders.add(player.getChoiceRecorder());
+        for (ComputerCharacter opponent : computerOpponents) {
+            choiceRecorders.add(opponent.getChoiceRecorder());
+        }
+        return choiceRecorders;
     }
 
     public void setPlayer(PlayerCharacter player) {
@@ -86,6 +82,10 @@ public class Game {
         this.amountOfRounds = amountOfRounds;
     }
 
+    public void setRoundResults(List<Result> roundResults) {
+        this.roundResults = roundResults;
+    }
+
     public void setUpGameCharacters(String playerName) {
         setupPlayer(playerName);
         generateComputerOpponents();
@@ -93,6 +93,10 @@ public class Game {
 
     public void setupPlayer(String playerName) {
         this.setPlayer(GameCharacterFactory.createPlayerCharacter(playerName));
+    }
+
+    public void clearOldRoundResults() {
+        setRoundResults(new ArrayList<>());
     }
 
     public void generateComputerOpponents() {
@@ -104,7 +108,6 @@ public class Game {
 
         ComputerCharacter tempus = GameCharacterFactory.createTimeBasedComputerCharacter();
         computerOpponents.add(tempus);
-
     }
 
     public void chooseComputerOpponent(String opponentChoice) {
@@ -138,15 +141,8 @@ public class Game {
     }
 
     public Result getMatchResult() {
-        int playerWinsAmount = 0;
-        int computerWinsAmount = 0;
-        for (Result roundResult : roundResults) {
-            if (roundResult.equals(PLAYER_WIN)) {
-                playerWinsAmount++;
-            } else if (roundResult.equals(COMPUTER_WIN)) {
-                computerWinsAmount++;
-            }
-        }
+        int playerWinsAmount = Collections.frequency(roundResults, PLAYER_WIN);
+        int computerWinsAmount = Collections.frequency(roundResults, COMPUTER_WIN);
 
         if (playerWinsAmount == computerWinsAmount) {
             return TIE;

@@ -10,7 +10,7 @@ import static entity.choices.Choice.*;
 public class Rules {
     private final List<Choice> choices;
 
-    private static final Rules instance = new Rules(); // Singleton instance
+    private static final Rules instance = new Rules();
 
     public Rules() {
         this.choices = new ArrayList<>(List.of(ROCK, PAPER, SCISSORS));
@@ -27,14 +27,13 @@ public class Rules {
     public Result determineResult(Choice playerChoice, Choice computerChoice) {
         if (playerChoice.equals(computerChoice)) {
             return Result.TIE;
-        } else if ((playerChoice.equals(ROCK) && computerChoice.equals(SCISSORS)) ||
-                (playerChoice.equals(PAPER) && computerChoice.equals(ROCK)) ||
-                (playerChoice.equals(SCISSORS) && computerChoice.equals(PAPER))) {
+        } else if ((playerChoice.equals(Choice.ROCK) && computerChoice.equals(Choice.SCISSORS)) ||
+                (playerChoice.equals(Choice.PAPER) && computerChoice.equals(Choice.ROCK)) ||
+                (playerChoice.equals(Choice.SCISSORS) && computerChoice.equals(Choice.PAPER))) {
             return Result.PLAYER_WIN;
         } else {
             return Result.COMPUTER_WIN;
         }
     }
-
 
 }

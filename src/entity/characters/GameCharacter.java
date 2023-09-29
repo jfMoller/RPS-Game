@@ -5,11 +5,10 @@ import entity.stats.ChoiceObserver;
 import entity.stats.ChoiceRecorder;
 
 public abstract class GameCharacter {
-    String name;
+    private final String name;
 
     protected ChoiceObserver choiceObserver;
 
-    // Note that choiceRecorder implements the interface ChoiceObserver
     protected final ChoiceRecorder choiceRecorder;
 
     public GameCharacter(String name, ChoiceRecorder choiceRecorder) {
@@ -20,7 +19,7 @@ public abstract class GameCharacter {
     }
 
     public void addObserver(ChoiceObserver observer) {
-        choiceObserver = observer;
+        this.choiceObserver = observer;
     }
 
     public void notifyObserver(Choice newChoice) {

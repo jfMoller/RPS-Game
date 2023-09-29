@@ -1,5 +1,7 @@
 package entity;
 
+import dto.JsonFormatProvider;
+import dto.JsonFormatProviderImpl;
 import entity.characters.ComputerCharacter;
 import entity.characters.PlayerCharacter;
 import entity.choices.Choice;
@@ -17,20 +19,23 @@ public class Menu {
 
     private final Game game;
     private final StatisticsProvider statisticsProvider;
+
+    private final JsonFormatProvider jsonFormatProvider;
     private final Scanner scanner = new Scanner(System.in);
 
     //Allowed range for the amount of rounds that can be played in the menu (MIN, MAX)
-    private final int MIN_ROUND_AMOUNT = 1;
-    private final int MAX_ROUND_AMOUNT = 10;
+    private static final int MIN_ROUND_AMOUNT = 1;
+    private static final int MAX_ROUND_AMOUNT = 10;
 
     public Menu(Game game) {
         this.game = game;
         this.statisticsProvider = new StatisticsProviderImpl();
+        this.jsonFormatProvider = new JsonFormatProviderImpl();
     }
 
     public void render() {
-        showGreenHeader("Welcome to Rock Paper Scissors - a graded Java assignment");
         showDivider();
+        showGreenHeader("Welcome to Rock Paper Scissors - a graded Java assignment");
 
         System.out.print("Please enter your name: ");
         // Prevents the player from using a blank or empty name
@@ -68,7 +73,7 @@ public class Menu {
 
         showChooseAmountOfRounds();
         // Allowed range of rounds is passed as (min, max) amount.
-        int chosenAmount = getValidUserInput(MIN_ROUND_AMOUNT, MAX_ROUND_AMOUNT);
+        int chosenAmount = getValidUserInput();
         game.chooseAmountOfRounds(chosenAmount);
 
         int roundCount = 1;
@@ -79,6 +84,7 @@ public class Menu {
 
         recordMatchResult();
         showMatchResults(game.getRoundResults().toString(), game.getMatchResult().toString());
+        game.clearOldRoundResults();
     }
 
     private void recordMatchResult() {
@@ -100,7 +106,6 @@ public class Menu {
         Result newRoundResult = game.getRoundResult(playerChoice, computerChoice);
         recordRoundResult(newRoundResult);
         showRoundResult(player, playerChoice, computerOpponent, computerChoice, newRoundResult);
-
     }
 
     private void recordRoundResult(Result newRoundResult) {
@@ -126,18 +131,21 @@ public class Menu {
 
     private void showChoiceStats(List<ChoiceRecorder> characterChoiceRecorders) {
         for (ChoiceRecorder characterChoices : characterChoiceRecorders) {
-            System.out.println("    " + (statisticsProvider.getCharacterChoiceStats(characterChoices)));
+            String characterChoicesJson = statisticsProvider.getCharacterChoiceStats(characterChoices);
+            jsonFormatProvider.printStyledJson(characterChoicesJson);
+            showDivider();
         }
     }
 
     private void showMatchStats(MatchRecorder matchRecorder) {
         List<String> matches = statisticsProvider.getPlayerMatchStats(matchRecorder);
         if (matches.size() > 0) {
-            for (String match : matches) {
-                System.out.println("    " + match);
+            for (String matchJson : matches) {
+                jsonFormatProvider.printStyledJson(matchJson);
+                showDivider();
             }
         } else {
-            System.out.println("    There are no match statistics available at this time.");
+            System.out.println("There are no match statistics available at this time.");
         }
     }
 
@@ -146,8 +154,8 @@ public class Menu {
     }
 
     private void showGreenHeader(String text) {
-        showDivider();
         System.out.println("\u001B[34m" + "\u001B[32m" + text + "\u001B[0m");
+        showDivider();
     }
 
     private void showRoundResult(PlayerCharacter player, Choice playerChoice, ComputerCharacter computerOpponent, Choice computerChoice, Result result) {
@@ -210,6 +218,24 @@ public class Menu {
         }
     }
 
+    private int getValidUserInput() {
+        String minOption = Integer.toString(MIN_ROUND_AMOUNT);
+        String maxOption = Integer.toString(MAX_ROUND_AMOUNT);
+        while (true) {
+            showHighlightedPrompt("Enter an integer between", List.of(minOption, maxOption));
+            try {
+                int userInput = Integer.parseInt(scanner.nextLine());
+                if (userInput >= MIN_ROUND_AMOUNT && userInput <= MAX_ROUND_AMOUNT) {
+                    return userInput;
+                } else {
+                    System.out.println("Invalid input. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+            }
+        }
+    }
+
     private String getValidUserInput(List<String> validOptions) {
         while (true) {
             showHighlightedPrompt("Enter your choice", validOptions);
@@ -221,25 +247,6 @@ public class Menu {
             }
         }
     }
-
-    private int getValidUserInput(int min, int max) {
-        String minOption = Integer.toString(min);
-        String maxOption = Integer.toString(max);
-        while (true) {
-            showHighlightedPrompt("Enter an integer between", List.of(minOption, maxOption));
-            try {
-                int userInput = Integer.parseInt(scanner.nextLine());
-                if (userInput >= min && userInput <= max) {
-                    return userInput;
-                } else {
-                    System.out.println("Invalid input. Please try again.");
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid integer.");
-            }
-        }
-    }
-
 
     private void showHighlightedPrompt(String prompt, List<String> options) {
         String formattedOptions = options.stream()

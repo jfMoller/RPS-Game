@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class ChoiceGeneratorImpl implements ChoiceGenerator {
 
-    private Random random = new Random();
+    private final Random random = new Random();
 
     private final List<Choice> choices;
 
