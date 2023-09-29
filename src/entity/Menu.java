@@ -11,12 +11,17 @@ import entity.stats.StatisticsProviderImpl;
 
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Menu {
 
-    Game game;
-    StatisticsProvider statisticsProvider;
+    private final Game game;
+    private final StatisticsProvider statisticsProvider;
     private final Scanner scanner = new Scanner(System.in);
+
+    //Allowed range for the amount of rounds that can be played in the menu (MIN, MAX)
+    private final int MIN_ROUND_AMOUNT = 1;
+    private final int MAX_ROUND_AMOUNT = 10;
 
     public Menu(Game game) {
         this.game = game;
@@ -24,22 +29,31 @@ public class Menu {
     }
 
     public void render() {
-        showGreenHeader("Welcome to Rock Paper Scissors - a graded fullstack developer assignment");
-        System.out.println("Please enter your name:");
+        showGreenHeader("Welcome to Rock Paper Scissors - a graded Java assignment");
         showDivider();
 
-        String playerName = scanner.nextLine();
+        System.out.print("Please enter your name: ");
+        // Prevents the player from using a blank or empty name
+        String playerName = getValidUsername();
+
+        /* Handles creation of the player & computer opponent characters,
+           one of the opponent types ("Nomen") makes choices based on the player name,
+           which is why the playerName argument is passed. */
         game.setUpGameCharacters(playerName);
 
         while (true) {
             showGameMenu();
-            String menuChoice = scanner.nextLine().toUpperCase();
+            /* Prevents the player from choosing an option not available in the menu
+               P = Play, S = Show statistics, Q = Quit */
+            String menuChoice = getValidUserInput(List.of("P", "S", "Q"));
 
             if (menuChoice.equals("P")) {
                 playGame();
             }
 
             if (menuChoice.equals("S")) {
+                /* Shows stats in a JSON format which includes the choice ratio of the player and the different computer opponents,
+                 *  as well as match results. */
                 showAllStats(game.getCharacterChoiceRecorders(), game.getMatchRecorder());
             } else if (menuChoice.equals("Q")) {
                 break;
@@ -49,43 +63,51 @@ public class Menu {
 
     private void playGame() {
         showChooseOpponent();
-        String opponentChoice = scanner.nextLine();
+        String opponentChoice = getValidUserInput(List.of("P", "N", "T"));
         game.chooseComputerOpponent(opponentChoice);
 
         showChooseAmountOfRounds();
-        int chosenAmount = scanner.nextInt();
-        scanner.nextLine();
+        // Allowed range of rounds is passed as (min, max) amount.
+        int chosenAmount = getValidUserInput(MIN_ROUND_AMOUNT, MAX_ROUND_AMOUNT);
         game.chooseAmountOfRounds(chosenAmount);
 
-        int rounds = 1;
+        int roundCount = 1;
         do {
             playRound();
-            rounds++;
-        } while (rounds <= game.getAmountOfRounds());
+            roundCount++;
+        } while (roundCount <= game.getAmountOfRounds());
 
+        recordMatchResult();
         showMatchResults(game.getRoundResults().toString(), game.getMatchResult().toString());
     }
 
-    private void playRound() {
-        showRPSChoice();
-        Choice playerChoice = parseInputChoice(scanner.nextLine());
-
-        if (playerChoice != null) {
-            PlayerCharacter player = game.getPlayer();
-            player.notifyObserver(playerChoice);
-
-            ComputerCharacter computerOpponent = game.getComputerOpponent();
-            Choice computerChoice = game.getComputerOpponent().generateComputerChoice();
-            computerOpponent.notifyObserver(computerChoice);
-
-            Result newRoundResult = game.getRoundResult(playerChoice, computerChoice);
-            game.addRoundResult(newRoundResult);
-
-            showRoundResult(player, playerChoice, computerOpponent, computerChoice, newRoundResult);
-        }
+    private void recordMatchResult() {
+        Result newMatchResult = game.getMatchResult();
+        game.notifyObserver(newMatchResult);
     }
 
-    private static Choice parseInputChoice(String input) {
+    private void playRound() {
+        showRPSChoices();
+        Choice playerChoice = parseStringToChoice(getValidUserInput(List.of("R", "P", "S")));
+
+        PlayerCharacter player = game.getPlayer();
+        player.notifyObserver(playerChoice);
+
+        ComputerCharacter computerOpponent = game.getComputerOpponent();
+        Choice computerChoice = game.getComputerOpponent().generateComputerChoice();
+        computerOpponent.notifyObserver(computerChoice);
+
+        Result newRoundResult = game.getRoundResult(playerChoice, computerChoice);
+        recordRoundResult(newRoundResult);
+        showRoundResult(player, playerChoice, computerOpponent, computerChoice, newRoundResult);
+
+    }
+
+    private void recordRoundResult(Result newRoundResult) {
+        game.addRoundResult(newRoundResult);
+    }
+
+    private static Choice parseStringToChoice(String input) {
         return switch (input.toUpperCase()) {
             case "R" -> Choice.ROCK;
             case "P" -> Choice.PAPER;
@@ -100,7 +122,6 @@ public class Menu {
 
         showGreenHeader("Match statistics:");
         showMatchStats(matchRecorder);
-        showDivider();
     }
 
     private void showChoiceStats(List<ChoiceRecorder> characterChoiceRecorders) {
@@ -127,7 +148,6 @@ public class Menu {
     private void showGreenHeader(String text) {
         showDivider();
         System.out.println("\u001B[34m" + "\u001B[32m" + text + "\u001B[0m");
-        showDivider();
     }
 
     private void showRoundResult(PlayerCharacter player, Choice playerChoice, ComputerCharacter computerOpponent, Choice computerChoice, Result result) {
@@ -135,24 +155,18 @@ public class Menu {
         showGreenText(player.getName() + "'s choice: " + playerChoice);
         showGreenText(computerOpponent.getName() + "'s choice: " + computerChoice);
         showGreenText("Result: " + result);
-        showDivider();
     }
 
     private void showLightBlueHeader(String text) {
         showDivider();
         System.out.println("\u001B[36m" + text + "\u001B[0m");
-        showDivider();
     }
 
     private void showGameMenu() {
         showLightBlueHeader("Game menu:");
-        System.out.println("    \u001B[33m(P)\u001B[0mlay");
-        System.out.println("    \u001B[33m(S)\u001B[0mhow statistics");
-        System.out.println("    \u001B[33m(Q)\u001B[0muit");
-
-        showDivider();
-        System.out.println("Enter your choice:(\u001B[33mP\u001B[0m, \u001B[33mS\u001B[0m or \u001B[33mQ\u001B[0m)");
-        showDivider();
+        System.out.println("\u001B[33m(P)\u001B[0mlay");
+        System.out.println("\u001B[33m(S)\u001B[0mhow statistics");
+        System.out.println("\u001B[33m(Q)\u001B[0muit");
     }
 
     private void showChooseOpponent() {
@@ -160,18 +174,14 @@ public class Menu {
         System.out.println("\u001B[36mChoose your opponent:\u001B[0m");
         showDivider();
 
-        System.out.println("\u001B[35m(P)assim\u001B[0m - Random Choices");
-        System.out.println("\u001B[38;5;208m(N)omen\u001B[0m - Choices based on your name");
-        System.out.println("\u001B[31m(T)empus\u001B[0m - Choices based on the time");
-        showDivider();
-        System.out.println("Enter your choice (\u001B[35mP\u001B[0m, \u001B[38;5;208mN\u001B[0m or \u001B[31mT\u001B[0m)");
-        showDivider();
+        System.out.println("\u001B[35m(\u001B[33mP\u001B[0m\u001B[35m)assim\u001B[0m - Random Choices");
+        System.out.println("\u001B[38;5;208m(\u001B[33mN\u001B[0m\u001B[38;5;208m)omen\u001B[0m - Choices based on your name");
+        System.out.println("\u001B[31m(\u001B[33mT\u001B[0m\u001B[31m)empus\u001B[0m - Choices based on the time");
     }
 
-    private void showRPSChoice() {
+    private void showRPSChoices() {
         showDivider();
         System.out.println("\u001B[36m" + "Select (\u001B[33mR\u001B[0m)ock, (\u001B[33mP\u001B[0m)aper or (\u001B[33mS\u001B[0m)cissors");
-        showDivider();
     }
 
     private void showChooseAmountOfRounds() {
@@ -187,6 +197,56 @@ public class Menu {
         showGreenText(newMatchResult);
         showLightBlueHeader("Round results:");
         showGreenText(roundResults);
-        showDivider();
     }
+
+    private String getValidUsername() {
+        while (true) {
+            String userInput = scanner.nextLine();
+            if (!userInput.isBlank() && !userInput.isEmpty()) {
+                return userInput;
+            } else {
+                System.out.println("Invalid input. Please try again.");
+            }
+        }
+    }
+
+    private String getValidUserInput(List<String> validOptions) {
+        while (true) {
+            showHighlightedPrompt("Enter your choice", validOptions);
+            String userInput = scanner.nextLine().toUpperCase();
+            if (validOptions.contains(userInput)) {
+                return userInput;
+            } else {
+                System.out.println("Invalid input. Please try again.");
+            }
+        }
+    }
+
+    private int getValidUserInput(int min, int max) {
+        String minOption = Integer.toString(min);
+        String maxOption = Integer.toString(max);
+        while (true) {
+            showHighlightedPrompt("Enter an integer between", List.of(minOption, maxOption));
+            try {
+                int userInput = Integer.parseInt(scanner.nextLine());
+                if (userInput >= min && userInput <= max) {
+                    return userInput;
+                } else {
+                    System.out.println("Invalid input. Please try again.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid integer.");
+            }
+        }
+    }
+
+
+    private void showHighlightedPrompt(String prompt, List<String> options) {
+        String formattedOptions = options.stream()
+                .map("\u001B[33m%s\u001B[0m"::formatted)
+                .collect(Collectors.joining(", "));
+        showDivider();
+        System.out.print(prompt + " (%s)".formatted(formattedOptions) + ": ");
+    }
+
 }
