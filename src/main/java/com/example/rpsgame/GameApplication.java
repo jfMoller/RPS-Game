@@ -19,18 +19,30 @@ public class GameApplication extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         GameApplication.stage = stage;
-        showStartScene();
+        renderStartScene();
     }
 
     public static void main(String[] args) {
         launch();
     }
 
-    public void showStartScene() throws IOException {
+    public void renderStartScene() throws IOException {
         setupScene(stage, "start-scene.fxml");
     }
-    public void showMenuScene() throws IOException {
+    public void renderMenuScene() throws IOException {
         setupScene(stage, "menu-scene.fxml");
+    }
+
+    public void renderStatisticsScene() throws IOException {
+        setupScene(stage, "show-statistics-scene.fxml");
+    }
+
+    public void renderGameScene() throws IOException {
+        setupScene(stage, "setup-game-scene.fxml");
+    }
+
+    public void renderPlayGameScene() throws IOException {
+        setupScene(stage, "play-game-scene.fxml");
     }
 
     public void setupScene(Stage stage, String sceneFileName) throws IOException {

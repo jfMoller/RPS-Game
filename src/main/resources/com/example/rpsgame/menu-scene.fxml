@@ -2,12 +2,21 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
+<?import javafx.scene.text.*?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rpsgame.javafx.GameController">
    <children>
-      <Button layoutX="274.0" layoutY="153.0" mnemonicParsing="false" text="Play game" />
-      <Button layoutX="274.0" layoutY="200.0" mnemonicParsing="false" text="Show statistics" />
-      <Button layoutX="274.0" layoutY="244.0" mnemonicParsing="false" text="Quit" />
+      <Label layoutX="138.0" layoutY="56.0" text="Rock Paper Scissors">
+         <font>
+            <Font size="36.0" />
+         </font>
+      </Label>
+      <VBox alignment="CENTER" layoutX="244.0" layoutY="134.0" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+         <children>
+            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="94.0" text="Play game" />
+            <Button mnemonicParsing="false" text="Show statistics" onAction="#onShowStatisticsButtonClick" />
+            <Button mnemonicParsing="false" prefHeight="26.0" prefWidth="94.0" text="Quit" />
+         </children>
+      </VBox>
    </children>
 </AnchorPane>
