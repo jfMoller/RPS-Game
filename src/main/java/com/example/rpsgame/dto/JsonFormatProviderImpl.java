@@ -35,16 +35,7 @@ public class JsonFormatProviderImpl implements JsonFormatProvider {
     }
 
     @Override
-    public void printStyledJson(String json) {
-        json = formatJsonWithLinebreaks(json);
-        printJsonAsLightBlueText(json);
-    }
-
-    private void printJsonAsLightBlueText(String json) {
-        System.out.println("\u001B[36m" + json + "\u001B[0m");
-    }
-
-    private String formatJsonWithLinebreaks(String json) {
+    public String formatJsonWithLinebreaks(String json) {
         json = json.replaceAll("\\" + OPEN_CURLY_BRACE, OPEN_CURLY_BRACE + LINEBREAK);
         json = json.replaceAll(CLOSED_CURLY_BRACE, LINEBREAK + CLOSED_CURLY_BRACE);
         json = json.replaceAll("\\" + OPEN_SQUARE_BRACKET, LINEBREAK + OPEN_SQUARE_BRACKET);

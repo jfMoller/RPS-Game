@@ -1,8 +1,8 @@
 package com.example.rpsgame.entity;
 
 
-import com.example.rpsgame.dto.JsonFormatProvider;
-import com.example.rpsgame.dto.JsonFormatProviderImpl;
+import com.example.rpsgame.dto.JsonPrintingProvider;
+import com.example.rpsgame.dto.JsonPrintingProviderImpl;
 import com.example.rpsgame.entity.characters.ComputerCharacter;
 import com.example.rpsgame.entity.characters.PlayerCharacter;
 import com.example.rpsgame.entity.choices.Choice;
@@ -21,7 +21,7 @@ public class Menu {
     private final Game game;
     private final StatisticsProvider statisticsProvider;
 
-    private final JsonFormatProvider jsonFormatProvider;
+    private final JsonPrintingProvider jsonPrintingProvider;
     private final Scanner scanner = new Scanner(System.in);
 
     //Allowed range for the amount of rounds that can be played in the menu (MIN, MAX)
@@ -31,7 +31,7 @@ public class Menu {
     public Menu(Game game) {
         this.game = game;
         this.statisticsProvider = new StatisticsProviderImpl();
-        this.jsonFormatProvider = new JsonFormatProviderImpl();
+        this.jsonPrintingProvider= new JsonPrintingProviderImpl();
     }
 
     public void render() {
@@ -133,7 +133,7 @@ public class Menu {
     private void showChoiceStats(List<ChoiceRecorder> characterChoiceRecorders) {
         for (ChoiceRecorder characterChoices : characterChoiceRecorders) {
             String characterChoicesJson = statisticsProvider.getCharacterChoiceStats(characterChoices);
-            jsonFormatProvider.printStyledJson(characterChoicesJson);
+            jsonPrintingProvider.printStyledJson(characterChoicesJson);
             showDivider();
         }
     }
@@ -142,7 +142,7 @@ public class Menu {
         List<String> matches = statisticsProvider.getPlayerMatchStats(matchRecorder);
         if (matches.size() > 0) {
             for (String matchJson : matches) {
-                jsonFormatProvider.printStyledJson(matchJson);
+                jsonPrintingProvider.printStyledJson(matchJson);
                 showDivider();
             }
         } else {
