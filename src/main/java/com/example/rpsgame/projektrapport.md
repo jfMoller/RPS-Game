@@ -4,7 +4,7 @@
 
 Dokumentets syfte är i enlighet med uppgiftskraven att visa hur projektet använder sig av objektorienterad design
 och objektorienterade principer. Dokumentet inkluderar även reflektioner över fördelar och nackdelar med de OOP koncept som
-implementerats.
+har implementerats.
 
 ### Metod
 
@@ -42,7 +42,7 @@ syftar till att tillämpa "Single Responsibility Principle" (SRP) från SOLID-pr
 
 **Användning**
 
-- Detta paket används för att skapa spelkaraktärer, såsom spelaren, dator-motståndare samt mer specifika variationer av
+- Detta paket används för att skapa spelkaraktärer, såsom spelaren, dator-motståndare samt mer specifika varianter av
 datormotståndare.
 
 **GameCharacter**
@@ -50,7 +50,7 @@ datormotståndare.
 - Denna abstrakta klass används eftersom det finns gemensam funktionalitet i dess underklasser.
 Den möjliggör enkel förlängning av funktioner genom att använda arv (inheritance) och har ett avgränsat ansvarsområde.
 Klassen använder sig även av mönstret "Observer Pattern" för att spela in de val som spelare gör, vilket utgör
-underlaget för spelets statistiksammanställning.
+en del av underlaget för spelets statistiksammanställning.
 
 **PlayerCharacter**
 
@@ -220,7 +220,7 @@ ComputerCharacter, vilket möjliggör olika beteenden baserat på typen av dator
 **Återanvändbarhet**: Objektorienterad design kan möjliggöra en strukturerad och återanvändbar kodbas. Exempelvis kan olika
   typer av spelkaraktärer enkelt läggas till genom att skapa nya subklasser till ComputerCharacter.
 
-**Tydlighet och Struktur**: OOP bidrar till skapar struktur och tydlighet, vilket kan underlätta förståelsen och
+**Tydlighet och Struktur**: OOP bidrar till att skapa struktur och tydlighet, vilket kan underlätta förståelsen och
   underhållandet av koden över tid.
 
 **Decoupling**: Genom att använda designmönster som Dependency Injection minimeras kopplingen mellan
